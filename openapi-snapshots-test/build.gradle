@@ -1,0 +1,13 @@
+apply from: "$rootDir/gradle/publishing.gradle"
+
+repositories {
+	maven { url 'https://jitpack.io' } // needed until ´io.github.robwin:assertj-swagger:0.6.1´ is released
+}
+dependencies {
+	compile(
+			project(':openapi-json-filter'),
+//			'io.github.robwin:assertj-swagger:0.6.0',
+			'com.github.atsu85:assertj-swagger:v0.6.1-RC1', // Forked from io.github.robwin:assertj-swagger
+			'junit:junit:4.12',
+	)
+}

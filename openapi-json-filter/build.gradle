@@ -1,0 +1,10 @@
+apply from: "$rootDir/gradle/publishing.gradle"
+
+dependencies {
+	compile(
+			'io.swagger:swagger-parser:1.0.34',
+			'org.apache.httpcomponents:httpasyncclient:4.1.3',
+			'org.hamcrest:hamcrest-core',
+			'org.hamcrest:hamcrest-library',
+	)
+}

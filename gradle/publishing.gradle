@@ -1,0 +1,18 @@
+apply plugin: 'maven-publish'
+
+task sourceJar(type: Jar) {
+	from sourceSets.main.allJava
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			groupId 'com.github.atsu85.openapi-snapshots'
+			from components.java
+
+			artifact sourceJar {
+				classifier "sources"
+			}
+		}
+	}
+}

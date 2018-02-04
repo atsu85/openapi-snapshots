@@ -1,0 +1,4 @@
+rootProject.name = 'openapi-snapshots'
+
+include 'openapi-json-filter'
+include 'openapi-snapshots-test'
