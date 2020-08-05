@@ -1,6 +1,7 @@
 package com.github.atsu85.openapisnapshots.test;
 
 import java.io.File;
+import java.io.IOException;
 
 import lombok.AllArgsConstructor;
 
@@ -8,6 +9,8 @@ import org.apache.http.Header;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.atsu85.openapisnapshots.filter.FilteredOpenApiDocCreator;
 import com.github.atsu85.openapisnapshots.filter.SelectedOperations;
 
@@ -29,6 +32,8 @@ public class RemoteEndpointApiSnapshotTestHelper {
 
 	private final SelectedOperations usedEndpoints;
 
+	private final FilteredOpenApiDocCreator filteredOpenApiDocCreator = new FilteredOpenApiDocCreator();
+
 	public void validateLatestApiDocCompatibilityWithSnapshot() {
 		DownloadUtil.downloadToFile(latestApiDocUrl, authHeader, latestApiDocFile);
 
@@ -43,8 +48,26 @@ public class RemoteEndpointApiSnapshotTestHelper {
 
 		File expectedEndpointsSnapshotFile = getSnapshotFileOrCreateWhenMissing(latestApiDocFile, swagger);
 
+		checkSnapshotContainsAllUsedEndpoints(expectedEndpointsSnapshotFile);
+
 		new SwaggerAssert(swagger)
 				.satisfiesContract(expectedEndpointsSnapshotFile.getPath());
+	}
+
+	private void checkSnapshotContainsAllUsedEndpoints(File endpointsSnapshotFile) {
+		// TODO
+		try {
+			ObjectNode jsonNode = filteredOpenApiDocCreator.readFromFile(endpointsSnapshotFile);
+			ObjectNode pathsNode = (ObjectNode) jsonNode.get("paths");
+			for (JsonNode pathNode : pathsNode) {
+				ObjectNode pathONode = (ObjectNode) pathNode;
+				System.out.println("pathNode" + pathONode);
+			}
+
+			//			pathsNode.forEach((JsonNode pathNode) -> System.out.println(pathsNode));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private File getSnapshotFileOrCreateWhenMissing(File latestApiDocFile, Swagger swagger) {
@@ -56,7 +79,7 @@ public class RemoteEndpointApiSnapshotTestHelper {
 	}
 
 	private void updateUsedEndpointsSnapshotsFileFromApiDoc(File fullApiDocFile, Swagger swagger) {
-		new FilteredOpenApiDocCreator().writeUsedEndpointsSnapshotsFile(fullApiDocFile, expectedEndpointsSnapshotFile, usedEndpoints, swagger);
+		filteredOpenApiDocCreator.writeUsedEndpointsSnapshotsFile(fullApiDocFile, expectedEndpointsSnapshotFile, usedEndpoints, swagger);
 	}
 
 }

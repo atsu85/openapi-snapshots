@@ -25,8 +25,8 @@ public class FilteredOpenApiDocCreator {
 	/**
 	 * @param fullApiDoc                   - original/full api-doc json file, that must contain selected operations
 	 * @param selectedOperationsApiDocFile - output file, that will contain selected operations
-	 * @param selectedOperations           -
-	 * @param swagger
+	 * @param selectedOperations           - operations to include in `selectedOperationsApiDocFile`
+	 * @param swagger                      - created from fullApiDoc (for now not creating it here, because the same instance is reused by openapi-snapshots-test)
 	 */
 	public void writeUsedEndpointsSnapshotsFile(File fullApiDoc, File selectedOperationsApiDocFile, SelectedOperations selectedOperations, Swagger swagger) {
 		Set<String> usedModelNames = getUsedModelNames(selectedOperations, swagger);
@@ -40,7 +40,7 @@ public class FilteredOpenApiDocCreator {
 		}
 	}
 
-	public Set<String> getUsedModelNames(SelectedOperations selectedOperations, Swagger swagger) {
+	private Set<String> getUsedModelNames(SelectedOperations selectedOperations, Swagger swagger) {
 		SwaggerApiSelectedOperationsModelsResolver apiDocHelper = new SwaggerApiSelectedOperationsModelsResolver(swagger);
 		return apiDocHelper.getModelNamesFromPaths(selectedOperations);
 	}
@@ -56,7 +56,7 @@ public class FilteredOpenApiDocCreator {
 		removeUnusedModelDefinitions(jsonNode, usedModelNames);
 	}
 
-	private ObjectNode readFromFile(File fullApiDoc) throws IOException {
+	public ObjectNode readFromFile(File fullApiDoc) throws IOException {
 		return (ObjectNode) OBJECT_MAPPER.readTree(fullApiDoc);
 	}
 
@@ -98,6 +98,7 @@ public class FilteredOpenApiDocCreator {
 		pathsNode.remove(unusedFieldss);
 	}
 
+	// FIXME rename definitionsNode -> node
 	private Set<String> getOtherFields(ObjectNode definitionsNode, Collection<String> fieldsToPreserve) {
 		Set<String> allFieldNames = Sets.newHashSet(definitionsNode.fieldNames());
 		assertThat(allFieldNames, CustomMatchers.hasAtLeastItemsInAnyOrder(fieldsToPreserve));
